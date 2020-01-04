@@ -7,20 +7,30 @@ import (
 	"strings"
 )
 
-var (
-	no int = 0
-	example = []string{"golang", "hands-on", "in", "kagawa"}
-	result = []string{"ー", "ー", "ー", "ー"}
+// var (
+// 	no int = 0
+// 	example = []string{"golang", "hands-on", "in", "kagawa"}
+// 	result = []string{"ー", "ー", "ー", "ー"}
+// 	b strings.Builder
+// 	stm time.Time
+// 	ptm time.Duration
+// 	timeStr string = "ー"
+// 	isStart = false
+// )
+
+type Typing struct {
+	Example []string
+	Result []string
+	TimeStr string
 	b strings.Builder
+	no int
 	stm time.Time
 	ptm time.Duration
-	timeStr string = "ー"
-	isStart = false
-)
+	isStart bool
+}
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
-	example = shuffle(example)
 }
 
 func shuffle(src []string) []string {
@@ -34,55 +44,68 @@ func shuffle(src []string) []string {
 	return dst
 }
 
-func IsContinue() bool {
-	return no < len(example)
+func NewTyping() *Typing {
+	t := &Typing {
+		Example: []string{"golang", "hands-on", "in", "kagawa"},
+		Result: []string{"ー", "ー", "ー", "ー"},
+		TimeStr: "ー",
+		no: 0,
+		isStart: false,
+	}
+	t.Example = shuffle(t.Example)
+
+	return t
 }
 
-func Input(inputs []rune) {
-	if isStart == false {
-		stm = time.Now()
-		isStart = true
+func (t *Typing) IsContinue() bool {
+	return t.no < len(t.Example)
+}
+
+func (t *Typing) Input(inputs []rune) {
+	if t.isStart == false {
+		t.stm = time.Now()
+		t.isStart = true
 	}
 	for _, r := range inputs {
-		b.WriteRune(r)
+		t.b.WriteRune(r)
 	}
 }
 
-func Check() {
+func (t *Typing) Check() {
 	// Enterが離れた
-	ptm = time.Since(stm)
-	timeStr = fmt.Sprintf("CurrentTime: %.3f(sec)", ptm.Seconds())
-	isStart = false
+	t.ptm = time.Since(t.stm)
+	t.TimeStr = fmt.Sprintf("CurrentTime: %.3f(sec)", t.ptm.Seconds())
+	t.isStart = false
 
-	if example[no] == b.String() {
-		result[no] = "○"
+	if t.Example[t.no] == t.b.String() {
+		t.Result[t.no] = "○"
 	} else {
-		result[no] = "×"
+		t.Result[t.no] = "×"
 	}
 	// Enterで次の入力へ
-	no++
-	if no >= len(example) {
-		no = len(example) - 1
+	t.no++
+	if t.no >= len(t.Example) {
+		t.no = len(t.Example) - 1
 	}
-	b.Reset()	
+	t.b.Reset()	
 }
 
-func CurrentExample() string {
-	return example[no]
+func (t *Typing) CurrentExample() string {
+	return t.Example[t.no]
 }
 
-func CurrentTime() string {
-	return timeStr
+func (t *Typing)  CurrentTime() string {
+	return t.TimeStr
 }
 
-func Examples() []string {
-	return example
+func (t *Typing)  Examples() []string {
+	return t.Example
 }
 
-func Results() []string {
-	return result
+func (t *Typing)  Results() []string {
+	return t.Result
 }
 
-func UserString() string {
-	return b.String()
+func (t *Typing)  UserString() string {
+	return t.b.String()
 }
